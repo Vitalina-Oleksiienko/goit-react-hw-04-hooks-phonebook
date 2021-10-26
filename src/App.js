@@ -1,47 +1,44 @@
 import "./App.css";
-import { Component } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import style from "./components/contacts.module.css";
 import Form from "./components/Form";
 import ContactList from "./components/ContactList";
 import Filter from "./components/Filter";
 
-class App extends Component {
-  state = {
-    contacts: [
-      { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-      { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-      { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-      { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-    ],
-    filter: [],
-  };
+export default function App() {
+  const [contacts, setContacts] = useState(() => {
+    const contact = localStorage.getItem("contacts");
+    if (contact) {
+      return JSON.parse(contact);
+    }
+    else { return [];}
+  });
+  const [filter, setFilter] = useState([]);
 
-  filterStatus = false;
+  useEffect(() => {
+    localStorage.setItem("contacts", JSON.stringify(contacts));
+  }, [contacts]);
 
-  handleSubmit = ({ name, number }) => {
-    if (!this.state.contacts.find((el) => el.name === name)) {
-      this.setState((prevState) => ({
-        contacts: [...prevState.contacts, { name, number, id: uuidv4() }],
-      }));
+  const handleSubmit = (name, number) => {
+    if (!contacts.find((el) => el.name === name)) {
+      setContacts(prev => [...prev, { name, number, id: uuidv4() }]);
     } else {
       alert(`${name} is already in contacts`);
     }
   };
 
-  handleChange = (e) => {
+  const handleChange = (e) => {
     const regExp = new RegExp(`^${e.target.value.toLowerCase()}`);
-    this.setState({
-      filter: regExp,
-    });
+    setFilter(regExp);
   };
 
-  handleFilter = () => {
-    return this.state.contacts.filter((el) => {
+  const handleFilter = () => {
+    return contacts.filter((el) => {
       const array = el.name.toLowerCase().split(" ");
 
       for (let i = 0; i < array.length; i++) {
-        if (array[i].toLowerCase().match(this.state.filter) !== null) {
+        if (array[i].toLowerCase().match(filter) !== null) {
           return true;
         }
       }
@@ -49,27 +46,22 @@ class App extends Component {
     });
   };
 
-  handleDelete = (e) => {
-    this.setState((prevState) => ({
-      contacts: prevState.contacts.filter((elem) => elem.id !== e.target.id),
-    }));
+  const handleDelete = (e) => {
+    setContacts(prev => prev.filter((elem) => elem.id !== e.target.id));
   };
 
-  render() {
-    return (
+  return (
       <div className="App">
         <h1 className={style.title}>Phonebook</h1>
-        <Form handleSubmit={this.handleSubmit} name={this.state.name} />
+        <Form handleSubmit={handleSubmit} />
 
         <h2 className={style.title}>Contacts</h2>
-        <Filter handleChange={this.handleChange} />
+        <Filter handleChange={handleChange} />
         <ContactList
-          contacts={this.handleFilter()}
-          handleDelete={this.handleDelete}
+          contacts={handleFilter()}
+          handleDelete={handleDelete}
         />
       </div>
     );
-  }
 }
 
-export default App;
