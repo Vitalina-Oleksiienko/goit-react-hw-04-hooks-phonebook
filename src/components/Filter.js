@@ -1,10 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import style from "./contacts.module.css";
 
-class Filter extends Component {
-  render() {
-    return (
+ export default function Filter ({handleChange}) {
+  return (
       <>
         <label htmlFor="find" className={style.label}>
           Find contacts by name
@@ -18,15 +17,12 @@ class Filter extends Component {
           pattern="^[a-zA-Zа-яА-Я]"
           onChange={(e) => {
             e.preventDefault();
-            this.props.handleChange(e);
+            handleChange(e);
           }}
         ></input>
       </>
     );
   }
-}
-
-export default Filter;
 
 Filter.propTypes = {
   handleChange: PropTypes.func.isRequired,
